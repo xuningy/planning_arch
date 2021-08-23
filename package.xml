@@ -1,0 +1,24 @@
+<package format="2">
+  <name>planning_arch</name>
+  <version>0.1.1</version>
+  <description>The planning_arch package</description>
+  <author email="xuningy@andrew.cmu.edu">Xuning Yang</author>
+  <maintainer email="xuningy@andrew.cmu.edu">Xuning Yang</maintainer>
+  <license>BSD-3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>codetimer_catkin</depend>
+  <depend>collision_checker</depend>
+  <depend>cpp_utils</depend>
+  <depend>forward_arc_primitives</depend>
+  <depend>joystick_handler</depend>
+  <depend>motion_primitive_tree</depend>
+  <depend>trajectory_utils</depend>
+  <depend>stopping_trajectory</depend>
+  <depend>ros_utils</depend>
+  <depend>planning_control_interface</depend>
+
+
+</package>

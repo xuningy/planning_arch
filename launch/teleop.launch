@@ -1,0 +1,74 @@
+  <launch>
+    <arg name="vehicle" default="acerodon00"/>
+    <arg name="odom_topic" default="vicon_odom"/>
+    <arg name="sim"        default="true"/>
+    <arg name="saveto_directory"     default="~/.ros/"/>
+    <arg name="map_filename"/>
+    <arg name="use_vision" default="false"/>
+    <arg name="record"     default="false"/>
+
+
+    <arg name="map_size_x" value="120"/>
+    <arg name="map_size_y" value="40" />
+    <arg name="map_size_z" value="5" />
+
+
+    <arg name="local_map_params_file" default="$(find local_map_generator)/config/local_map_parameters.yaml"/>
+    <rosparam file="$(find lwpr_model)/config/parameters.yaml"/>
+    <rosparam file="$(find lgp_model)/config/parameters.yaml"/>
+
+    <rosparam file="$(find vehicle_configs)/$(arg vehicle)/Model.yaml"/>
+
+    <node pkg="planning_arch" name="planning_arch" type="planning_arch" required="true" output="screen">
+
+      <rosparam file="$(find planning_arch)/config/planning.yaml"/>
+      <rosparam file="$(find planning_arch)/config/mpt.yaml"/> <!-- hack for motion primitive trees-->
+      <rosparam file="$(find stopping_trajectory)/config/stopping_trajectory.yaml"/>
+
+      <param name="config_file" type="string" value="$(arg local_map_params_file)"/>
+      <param name="calib_file"  type="string" value="$(find vehicle_configs)/$(arg vehicle)/calibration.yaml" />
+
+      <param name="sim" value="$(arg sim)"/>
+
+      <rosparam file="$(find collision_checker)/config/collision_avoidance_global.yaml"/>
+      <param name="use_vision" value="$(arg use_vision)"/>
+      <param name="record" value="$(arg record)"/>
+      <param name="saveto_directory" value="$(arg saveto_directory)"/>
+      <param name="map_filename" value="$(arg map_filename)"/>
+
+      <remap from="~odom" to="$(arg odom_topic)"/>
+      <remap from="~joy" to="joy"/>
+      <remap from="~joy_filtered" to="joy_filtered"/>
+      <remap from="~flags" to="flags"/>
+      <remap from="~trajectory" to="trajectory"/>
+      <remap from="~get_reference_state" to="get_reference_state"/>
+
+      <!-- topotraj stuff-->
+      <!-- <rosparam file="$(find plan_manage)/config/topotraj.yaml"/>
+      <param name="map_size_x"     value="$(arg map_size_x)"/>
+      <param name="map_size_y"     value="$(arg map_size_y)"/>
+      <param name="map_size_z"     value="$(arg map_size_z)"/> -->
+
+      <param name="body_frame"  type="string" value="$(arg vehicle)/body"/>
+      <param name="sim"  type="bool"   value="$(arg sim)"/>
+
+      <remap from="/odom_world" to="$(arg odom_topic)"/>
+      <remap from="/sdf_map/odom"  to="$(arg odom_topic)"/>
+      <remap from="/sdf_map/cloud" to="/pcl_render_node/local_cloud"  if="$(arg sim)"/>
+      <remap from="/sdf_map/pose"  to="/pcl_render_node/camera_pose"  if="$(arg sim)"/>
+      <remap from="/sdf_map/depth" to="/pcl_render_node/depth"  if="$(arg sim)"/>
+
+    </node>
+
+
+    <!-- simulated depth camera-->
+    <node pkg="tof_camera_simulator" name="tof_camera_simulator" type="tof_camera_simulator" required="true" output="screen" if="$(arg sim)">
+      <param name="count" value="1"/>
+      <param name="name/robot1" value="$(arg vehicle)"/>
+      <param name="map/filename" value="$(arg map_filename)"/>
+      <param name="map/resolution" value="0.1"/>
+      <rosparam file="$(find teleop_launch)/config/Orbbec-Astra.yaml"/>
+      <remap from="~/tof_points" to="/$(arg vehicle)/tof_points"/>
+    </node>
+
+</launch>

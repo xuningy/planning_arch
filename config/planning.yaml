@@ -1,0 +1,44 @@
+# planning parameters
+global:
+  replan_dist_threshold: 1.5 # dist before global end to regenerate global path [m]
+
+  near_end_check_rate: 0.1 # check if near end of global trajectory every 10Hz
+
+  model: simple_filter # one of {single_straight_line, direct_motion_primitive, simple_filter, user_model}
+  simple_filter_lambda: 0.5 # lambda for the simple low pass filter on inputs
+  global_traj_duration_param: 5 # duration of the guiding primitive; [s]
+
+local:
+  mode: motion_primitives # mode of the local planner. NOT USED
+  enable_direct_motion_primitives: true # whether to enable direct motion primitive teleop during navigation or not
+
+  replan_dist_threshold: 1 # dist before local end to replan local [m]
+  global_goal_dist_threshold: 0.3 # stop local plan if within threshold to global goal [m]
+  global_regen_cost_threshold: 3 # cost for discrete frechet distance to regenerate a current trajectory if a new global trajectory is published. no units.
+
+  collision_check_rate: 0.03 # Rate for collision check loop
+  near_end_check_rate: 0.01 # Rate for near end of local check loop
+
+  lookahead_mode: dynamic # one of {fixed, dynamic}
+  lookahead: 0.3 # value for fixed lookahead
+
+teleoperation:
+  side_velocity_enabled: true # enable side velocity or not
+  aligned_heading: true # enable heading_aligned_velocity
+
+  max_forward_velocity: 2 # max forward velocity [m/s]
+  max_z_velocity: 1 # max z velocity, in [m/s]
+  max_angular_velocity: 0.75 # bounds on angular velocity for primitives [rad/s]
+  max_yaw_rate: 2 # max pure yaw rate [rad/s]
+
+  trajectory_duration: 3 # time length for each mp [s]
+  stopping_trajectory_duration: 2 # trajectory duration for a hard stop before an obstacle [s]
+  braking_trajectory_duration: 2.2 # trajectory duration for a gentle break if a zero input is issued [s]
+  yaw_rampup_duration: 0.3 # time to ramp up for a pure yaw [s]
+
+  traj_gen_rate: 0.04 # duration at which to generate new trajectories [s], if in fixed_rate mode.
+
+
+debug:
+  vis_only: false # visualize the trajectories and don't publish them
+  verbose: false # print additional debug stuff

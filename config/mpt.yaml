@@ -1,0 +1,81 @@
+# teleoperation parameters
+
+# copy of teleop.yaml
+teleoperation:
+  side_velocity_enabled: false # enable side velocity or not
+  aligned_heading: true # enable heading_aligned_velocity
+
+  max_forward_velocity: 2 # max forward velocity [m/s]
+  max_z_velocity: 0.4 # max z velocity, in [m/s]
+  max_angular_velocity: 0.4 # bounds on angular velocity for primitives [rad/s]
+  max_yaw_rate: 0.5 # max pure yaw rate [rad/s]
+
+  trajectory_duration: 2 # time length for each mp [s]
+  stopping_trajectory_duration: 2 # trajectory duration for a hard stop before an obstacle [s]
+  braking_trajectory_duration: 2.2 # trajectory duration for a gentle break if a zero input is issued [s]
+  yaw_rampup_duration: 0.3 # time to ramp up for a pure yaw [s]
+
+  regeneration_scheme: at_end # one of: {fixed_rate, at_end}. fixed_rate regenerates trajectories according to traj_gen_rate. at_end regenerates trajectories 200ms before trajectory's end, but will poll joystick at 80Hz and regenerate if a new input has been given.
+  traj_gen_rate: 0.01 # duration at which to generate new trajectories [s], if in fixed_rate mode.
+
+motion_primitives:
+  primitive_type: forward_arc_primitives # One of: {linear_velocity_only, forward_arc_primitives}
+
+  discretization_mode: manual # one of: {ultra-fine, fine, medium, coarse, manual}. If manual, it uses the following values to generate the library.
+
+  num_z: 5 # number of z velocity discretizations (please enter an odd number)
+  num_omega: 15 # number of omega discretizations (please enter an odd number)
+  num_lin_vel: 1 # number of linear velocity discretizations. If this number is 1, then the linear velocity is fixed to the joystick input.
+
+obstacle_avoidance:
+  enable: false
+  haptic_feedback: false
+  haptic_feedback_strength: 0.5 # 0 to 1
+
+active_replan:
+  policy: joystick # one of: {autonomous_forward, joystick, cross_entropy, cross_entropy_joystick}. autonomous_forward uses an autonomous policy that drives the vehicle forward autonomously. joystick allows operator to select trajectories using their joystick.
+  optimize_with_bspline: false # currently simulation only, needs a .pcd for map.
+  num_threads: 12 # number of threads to enable for multithreading
+
+  tree_size: 80 # Size of tree in number of nodes; will terminate once the tree reaches this size.
+
+  # Sampling
+  sample_batch_size: 2 # The number of trajectories to sample at each time.
+  elite_set_size: 500 # number of elements sample_batch_size will sample from
+
+  # Enable softmax
+  softmax_enabled: true
+  beta: 0.5 # < 1 if costs are too high, >1 to really differentiate lower costs.
+
+  # Enable cost_bound
+  cost_bound_enabled: true
+  percentile: 0.5 # the percentile to which new nodes are allowed to be added to the tree
+
+  # Fixed goal for goal and point cost functions
+  global_goal_x: 10
+  global_goal_y: 0
+  global_goal_z: 1
+
+  # weights for various cost functions; setting zero turns them off.
+
+  # behavior
+  w_smooth: 0.4 # Weight on cost function that penalize changes in curvature.
+  w_straightline: 0.2 # Weight on cost function that penalize any curvature
+  w_speed: 0 # Weight on cost function that penalize slower trajectories (avg per segment)
+  w_duration: 0.6 # Weight on cost function that penalizes trajectories with short segments (avg per segment)
+  w_length: 0.3 # Weight on cost function that penalizes trajectories with shorter length
+
+  # state goals
+  w_direction: 0 # Weight on cost function that penalize trajectories that are too far away from current heading. Normalized by duration (NOTE: VERY EXPENSIVE!)
+  w_input: 1.8 # Weight on cost function of the trajectory with respect to an input (given that the two inputs are specified in the same frame)
+  w_goal: 0 # Weight on cost function that penalize distance of the final point to the goal
+  w_point: 0 # Weight on cost function that penalize distance along a trajectory to a point
+  w_deviation: 0
+
+  # TODO: add verbose parameter here
+
+# debug:
+#   generate_but_dont_publish: false # persistently generates trajectories for handheld tests; no trajectories published. For trees, this just means that the trajectory is not published.
+#   record_timing_results: false
+#   vis_continuous_mp: false # visualize trajectories continuously
+#   vis_mp_library: true # toggle visualizing the entire motion primitive library
